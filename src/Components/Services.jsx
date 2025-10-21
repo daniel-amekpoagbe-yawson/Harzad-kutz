@@ -91,7 +91,7 @@ function Services() {
   const [activeTab, setActiveTab] = useState("Featured");
 
   return (
-    <div className="max-w-6xl mx-auto pt-20 pb-16 px-6 bg-gray-900">
+    <div className="max-w-7xl  pt-20 pb-16 px-6 bg-gray-900">
       <div className="text-center mb-12">
         <span className="inline-block px-4 py-1 mb-4 cinzel text-xs sm:text-sm font-medium tracking-widest text-amber-300 uppercase border border-amber-400">
           Our Services
@@ -147,7 +147,7 @@ function Services() {
             >
               <div className="p-8">
                 <div className="flex justify-between items-start mb-6">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold cinzel text-white">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-extrabold bellefair text-white">
                     {service.name}
                   </h3>
                   <span className="text-amber-400 text-xl sm:text-2xl cinzel font-bold">

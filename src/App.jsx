@@ -10,6 +10,7 @@ import Blog from "./Pages/Blog";
 import BlogPost from "./Pages/BlogPost";
 import ScrollToTop from "./Components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
+// import HazardKutzBookingSystem from "./Components/Bookingpage";
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/gallery" element={<Gallry />} />
           <Route path="/about" element={<AboutSection />} />
           <Route path="/booking" element={<Booking />} />
+          {/* <Route path="/bookingpage" element={<HazardKutzBookingSystem />} /> */}
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
         </Route>

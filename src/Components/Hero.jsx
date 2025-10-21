@@ -1,106 +1,180 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import barber3 from "../assets/gen.png"; // background image
-import { Link } from "react-router-dom";
+import { Scissors, Calendar, MapPin, Clock, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function HeroSection() {
+  // State to control animation triggers - helps coordinate sequential animations
   const [isVisible, setIsVisible] = useState(false);
 
+  // Trigger animations once component mounts - creates smooth entrance effect
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
+  // Simulated background image - replace with your actual image path
+  const heroImageStyle = {
+    backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 1)), url('https://pzlomwaufewzsuzfuocw.supabase.co/storage/v1/object/public/photos/harzadkut.jpeg')`,
+    backgroundSize: "cover",
+    backgroundPosition: "50% 25%",
+  };
+
+  const navigate = useNavigate();
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Background Image with Parallax Effect */}
-      <motion.div
-        className="absolute inset-0 z-0"
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 8, ease: "easeOut" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/70 to-black z-10" />
-        <img
-          src={barber3}
-          alt="Professional Barbershop"
-          className="w-full h-full object-cover opacity-80"
-          style={{ objectPosition: "50% 25%" }}
-        />
-      </motion.div>
+      {/* 
+        BACKGROUND LAYER
+        - Uses animated div for subtle zoom-out effect (cinematic feel)
+        - Gradient overlay ensures text readability across all screen sizes
+        - Custom background-position keeps focus on the important part of the image
+      */}
+      <div
+        className="absolute inset-0 z-0 transition-transform duration-[8000ms] ease-out"
+        style={{
+          ...heroImageStyle,
+          transform: isVisible ? "scale(1)" : "scale(1.1)",
+        }}
+      />
 
-      {/* Content */}
-      <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-2"
-        ></motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 cinzel tracking-tight"
+      {/* 
+        MAIN CONTENT CONTAINER
+        - z-20 ensures content appears above background
+        - Flexbox centers all content vertically and horizontally
+        - Responsive padding adapts to different screen sizes
+      */}
+      <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-6  text-center">
+        {/* 
+          BADGE/TAGLINE - Small premium indicator
+          - Appears first in animation sequence (delay: 200ms)
+          - Adds professional credibility with icon
+        */}
+        <div
+          className={`mb-6 transition-all duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+          }`}
+          style={{ transitionDelay: "200ms" }}
         >
-          <span className="block text-3xl sm:text-4xl md:text-6xl font-extrabold">
-            {" "}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-200/5 bg-opacity-10 border border-amber-400/30 border-opacity-30 rounded-[8px] backdrop-blur-sm">
+            <Scissors className="w-4 h-4 text-amber-400" />
+            <span className="text-amber-400 text-sm font-bold tracking-wider uppercase">
+              Premium Grooming Experience
+            </span>
+          </div>
+        </div>
+
+        {/* 
+          MAIN HEADLINE
+          - Staggered animation for dramatic effect (delay: 400ms)
+          - Two-line layout: Brand name + tagline
+          - Responsive text sizing for mobile, tablet, and desktop
+        */}
+        <h1
+          className={`text-center mb-6 transition-all cinzel duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+          }`}
+          style={{ transitionDelay: "400ms" }}
+        >
+          {/* Brand name - largest, most prominent text */}
+          <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white mb-2 tracking-tight leading-none">
             Hazard Kutz
           </span>
-          <span className="text-amber-400 italic block text-xl sm:text-2xl md:text-4xl">
-            {/* <span className="text-2xl"> Own Your Style.</span> <br /> */}
+
+          {/* Tagline - contrasting color for visual hierarchy */}
+          <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-amber-400 italic tracking-wide">
             Master Your Look.
           </span>
-        </motion.h1>
+        </h1>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: isVisible ? 1 : 0, scale: isVisible ? 1 : 0.9 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="w-24 h-1 bg-amber-400 my-2"
-        />
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="max-w-lg text-base sm:text-lg md:text-xl text-gray-400 mb-8 bellefair tracking-wide"
+        {/* 
+          DESCRIPTION TEXT
+          - Provides key information about services and location
+          - Wider max-width for better readability
+          - Softer gray color prevents overwhelming the headline
+        */}
+        <p
+          className={`max-w-2xl text-base sm:text-lg bellefair md:text-xl text-gray-300 mb-4 leading-relaxed px-4 transition-all duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+          }`}
+          style={{ transitionDelay: "800ms" }}
         >
-          Precision kutz and refined grooming for men and boys designed to leave
-          a lasting impression. Located near Atomic Junction, Gateway Hotel,
-          Dome-Kwabenya.
-        </motion.p>
+          Precision cuts and refined grooming for men and boys, designed to
+          leave a lasting impression. Experience excellence in every detail.
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="flex flex-col sm:flex-row gap-4"
+        <div
+          className={`flex flex-col sm:flex-row gap-4 mb-12 transition-all duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+          }`}
+          style={{ transitionDelay: "1000ms" }}
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 sm:px-8 py-3 sm:py-4 bg-amber-400 text-black text-sm sm:text-base font-bold uppercase cinzel tracking-wide rounded-sm hover:bg-amber-300 transition-colors duration-300"
+          {/* Primary CTA - encourages immediate booking */}
+          <button
+            className="px-4 py-3 bg-amber-400 text-black text-base font-extrabold uppercase tracking-wider rounded-lg hover:shadow-sm"
+            onClick={() => console.log("Navigate to /booking")}
           >
-            <Link to="/booking">Book Now</Link>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 sm:px-8 py-3 sm:py-4 border-2 border-white text-white text-sm sm:text-base cinzel font-bold uppercase tracking-wide rounded-sm hover:bg-white/10 transition-colors duration-300"
+            <span className="flex items-center justify-center bellefair  gap-2">
+              <Clock className="w-5 h-5" />
+              Book Appointment
+            </span>
+          </button>
+
+          {/* Secondary CTA - explores services */}
+          <button
+            className="px-4 py-3 border-1 border-white/10 text-white bellefair text-base font-extrabold uppercase tracking-wider rounded-lg hover:border-amber-400 hover:text-amber-400 hover:bg-white hover:bg-opacity-10 hover:scale-101 active:scale-95 transition-all duration-300"
+            onClick={() => navigate("/services")}
           >
-            <Link to="/services">Our Services</Link>
-          </motion.button>
-        </motion.div>
+            <span className="flex items-center justify-center gap-2">
+              <Scissors className="w-5 h-5" />
+              View Services
+            </span>
+          </button>
+        </div>
+
+        <div
+          className={`grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-[400px] sm:max-w-[700px] w-full  bellefair transition-all duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+          }`}
+          style={{ transitionDelay: "1200ms" }}
+        >
+          {/* Location card */}
+          <div className="flex items-center justify-center gap-3 p-1 bg-white/5 bg-opacity-5 backdrop-blur-sm border border-white/10 border-opacity-10 rounded-lg hover:bg-opacity-10 transition-all duration-300">
+            <MapPin className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className="text-left">
+              <p className="text-white text-sm  font-semibold">
+                Prime Location
+              </p>
+              <p className="text-gray-400 text-xs">Atomic Junction, Dome</p>
+            </div>
+          </div>
+
+          {/* Hours card */}
+          <div className="flex items-center justify-center gap-3 p-1 bg-white/5 bg-opacity-5 backdrop-blur-sm border border-white/10 border-opacity-10 rounded-lg hover:bg-opacity-10 transition-all duration-300">
+            <Clock className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className="text-left">
+              <p className="text-white text-sm font-semibold">Flexible Hours</p>
+              <p className="text-gray-400 text-xs">6 Days a Week</p>
+            </div>
+          </div>
+          {/*booking card*/}
+          <div className="flex items-center justify-center gap-3 p-1 bg-white/5 bg-opacity-5 backdrop-blur-sm border border-white/10 border-opacity-10 rounded-lg hover:bg-opacity-10 transition-all duration-300">
+            <Calendar className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className="text-left">
+              <p className="text-white text-sm font-bold">Smooth Booking</p>
+              <p className="text-gray-400 text-xs">
+                Effortless barber bookings
+              </p>
+            </div>
+          </div>
+          {/* Quality card */}
+          <div className="flex items-center justify-center gap-3 p-1 bg-white/5 bg-opacity-5 backdrop-blur-sm border border-white/10 border-opacity-10 rounded-lg hover:bg-opacity-10 transition-all duration-300">
+            <Star className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className="text-left">
+              <p className="text-white text-sm font-bold">Expert Barbers</p>
+              <p className="text-gray-400 text-xs">Premium Service</p>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Decorative Elements */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isVisible ? 1 : 0 }}
-        transition={{ duration: 1.2, delay: 1.2 }}
-        className="absolute bottom-8 left-0 right-0 flex justify-center z-20"
-      ></motion.div>
     </div>
   );
 }

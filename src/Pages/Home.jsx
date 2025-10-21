@@ -2,16 +2,16 @@ import HeroSection from "../Components/Hero";
 import Vibes from "../Components/Vibes";
 import Services from "../Components/Services";
 import Gallery from "../Components/Gallary";
-import Testimonials from "../Components/Testimonials";
+// import Testimonials from "../Components/Testimonials";
 import BlogPreview from "../Components/BlogPreview";
 
 const Home = () => {
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen ">
       <HeroSection />
       <Vibes />
       <Services />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <Gallery />
       <BlogPreview />
     </div>
