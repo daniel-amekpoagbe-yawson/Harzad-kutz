@@ -21,6 +21,10 @@ import { WalkInModal } from "./WalkInModal";
 import Spinner from "../Components/Spinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import emailjs from '@emailjs/browser';
+
+
+emailjs.init('DqsrIQ8qCX1Ms9fDS');
 
 
 // ============= AUTH CONTEXT =============
@@ -560,9 +564,9 @@ export const CustomerBookingPage = () => {
   const [barbers, setBarbers] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
 
-  const navigate = (path) => {
-    window.location.href = path;
-  };
+  // const navigate = (path) => {
+  //   window.location.href = path;
+  // };
 
   const loadInitialData = async () => {
     setLoading(true);
@@ -687,41 +691,138 @@ export const CustomerBookingPage = () => {
     await submitBooking(null);
   };
 
-  const submitBooking = async (paymentReference) => {
-    setLoading(true);
-    setError(null);
+  // const submitBooking = async (paymentReference) => {
+  //   setLoading(true);
+  //   setError(null);
 
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .insert([{
-          barber_id: selectedBarber.id,
-          service_id: selectedService.id,
-          customer_name: customerInfo.name,
-          customer_email: customerInfo.email,
-          customer_phone: customerInfo.phone,
-          appointment_date: selectedDate,
-          appointment_time: selectedTime,
-          payment_method: paymentMethod,
-          payment_reference: paymentReference,
-          status: 'confirmed',
-          payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
-          is_walk_in: false
-        }])
-        .select();
+  //   try {
+  //     const { error } = await supabase
+  //       .from('bookings')
+  //       .insert([{
+  //         barber_id: selectedBarber.id,
+  //         service_id: selectedService.id,
+  //         customer_name: customerInfo.name,
+  //         customer_email: customerInfo.email,
+  //         customer_phone: customerInfo.phone,
+  //         appointment_date: selectedDate,
+  //         appointment_time: selectedTime,
+  //         payment_method: paymentMethod,
+  //         payment_reference: paymentReference,
+  //         status: 'confirmed',
+  //         payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
+  //         is_walk_in: false
+  //       }])
+  //       .select();
 
-      if (error) throw error;
+  //     if (error) throw error;
 
       
-      setBookingStep(5);
-    } catch (err) {
-      console.error('Booking error:', err);
-      setError('Failed to create booking. Please try again.');
-      alert('Failed to create booking. Please try again.');
-    } finally {
-      setLoading(false);
+  //     setBookingStep(5);
+  //   } catch (err) {
+  //     console.error('Booking error:', err);
+  //     setError('Failed to create booking. Please try again.');
+  //     alert('Failed to create booking. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+// Initialize EmailJS with your public key (do this once in your component or at the top of your file)
+// Replace 'YOUR_PUBLIC_KEY' with your actual EmailJS public key
+
+const submitBooking = async (paymentReference) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const {  error } = await supabase
+      .from('bookings')
+      .insert([{
+        barber_id: selectedBarber.id,
+        service_id: selectedService.id,
+        customer_name: customerInfo.name,
+        customer_email: customerInfo.email,
+        customer_phone: customerInfo.phone,
+        appointment_date: selectedDate,
+        appointment_time: selectedTime,
+        payment_method: paymentMethod,
+        payment_reference: paymentReference,
+        status: 'confirmed',
+        payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
+        is_walk_in: false
+      }])
+      .select();
+
+    if (error) throw error;
+
+    // Send confirmation email
+    try {
+      const emailParams = {
+        to_email: customerInfo.email,
+        to_name: customerInfo.name,
+        barber_name: selectedBarber.name,
+        service_name: selectedService.name,
+        appointment_date: new Date(selectedDate).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        appointment_time: selectedTime,
+        payment_method: paymentMethod,
+        payment_reference: paymentReference,
+        payment_status: paymentMethod === 'online' ? 'Paid' : 'Pay at venue'
+      };
+
+      await emailjs.send(
+        'service_m24e4ce',     // Replace with your EmailJS service ID
+        'template_ryjb2vt',    // Replace with your EmailJS template ID
+        emailParams
+      );
+
+      console.log('Email sent successfully');
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError);
+      // Don't fail the booking if email fails
     }
-  };
+
+    setBookingStep(5);
+  } catch (err) {
+    console.error('Booking error:', err);
+    setError('Failed to create booking. Please try again.');
+    alert('Failed to create booking. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+// ```
+
+// // ## Step 4: Create Email Template in EmailJS
+
+// // In your EmailJS dashboard, create a template with these variables:
+// // ```
+// Subject: Booking Confirmation - {{barber_name}}
+
+// Hi {{to_name}},
+
+// Your appointment has been confirmed!
+
+// Appointment Details:
+// - Barber: {{barber_name}}
+// - Service: {{service_name}}
+// - Date: {{appointment_date}}
+// - Time: {{appointment_time}}
+// - Payment Method: {{payment_method}}
+// - Payment Status: {{payment_status}}
+// - Reference: {{payment_reference}}
+
+// We look forward to seeing you!
+
+// Best regards,
+// Your Barbershop Team
+
 
   const resetBooking = () => {
     setBookingStep(1);
@@ -744,12 +845,12 @@ export const CustomerBookingPage = () => {
               <h2 className="text-lg sm:text-3xl font-bold cinzel text-amber-400 mb-2">HAZARDKUTZ BOOKING</h2>
               <p className="text-base sm:text-xl bellefair text-gray-300">Where Style Meets Precision</p>
             </div>
-            <button
+            {/* <button
               onClick={() => navigate('/admin/login')}
               className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors backdrop-blur-sm border border-white/20"
             >
               Admin Login
-            </button>
+            </button> */}
           </div>
           
           {/* Contact Info */}
