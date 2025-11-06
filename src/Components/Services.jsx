@@ -173,7 +173,7 @@ function Services() {
                   className="absolute bottom-6 right-6"
                 >
                   <button className="bg-amber-400 text-black font-bold uppercase tracking-wide text-[10px] sm:text-xs py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-amber-300 transition-all duration-300 shadow-lg hover:shadow-amber-400/25">
-                    <Link to="/booking">Book Now</Link>
+                    <Link to="/bookingpage">Book Now</Link>
                   </button>
                 </motion.div>
               </div>
