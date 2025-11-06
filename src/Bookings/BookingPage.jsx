@@ -22,6 +22,7 @@ import Spinner from "../Components/Spinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
   import { Resend } from 'resend';
+import { sendBookingEmail } from "../utils/sendBookingEmail";
 
 
 // ============= AUTH CONTEXT =============
@@ -691,13 +692,14 @@ export const CustomerBookingPage = () => {
 const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
 
 
-
 const submitBooking = async (paymentReference) => {
   setLoading(true);
   setError(null);
 
   try {
-    // 1️⃣ Save booking to Supabase
+    // ============================================
+    // 1️⃣ SAVE BOOKING to Supabase database
+    // ============================================
     const { data, error } = await supabase
       .from('bookings')
       .insert([
@@ -718,33 +720,108 @@ const submitBooking = async (paymentReference) => {
       ])
       .select();
 
+    // ============================================
+    // 2️⃣ CHECK for database errors
+    // ============================================
     if (error) throw error;
 
-    // 2️⃣ Send email confirmation via Resend
-await fetch('/api/sendEmail', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: customerInfo.name,
-    email: customerInfo.email,
-    date: selectedDate,
-    time: selectedTime,
-    service: selectedService.name,
-    paymentMethod,
-  }),
-});
+    // ============================================
+    // 3️⃣ GET the created booking data
+    // Supabase returns an array, get the first item
+    // ============================================
+    const createdBooking = data[0];
 
+    console.log('✅ Booking saved to database:', createdBooking);
 
-    // 3️⃣ Proceed to confirmation screen
+    // ============================================
+    // 4️⃣ SEND CONFIRMATION EMAIL
+    // This happens AFTER booking is saved, so even if
+    // email fails, the booking is still created
+    // ============================================
+    const emailResult = await sendBookingEmail({
+      customer_name: customerInfo.name,
+      customer_email: customerInfo.email,
+      service_name: selectedService.name, // Make sure selectedService has a 'name' property
+      barber_name: selectedBarber.name,   // Make sure selectedBarber has a 'name' property
+      appointment_date: selectedDate,
+      appointment_time: selectedTime,
+      payment_method: paymentMethod,
+    });
+
+    // ============================================
+    // 5️⃣ LOG email result (don't fail booking if email fails)
+    // ============================================
+    if (emailResult.success) {
+      console.log('✅ Confirmation email sent successfully!');
+    } else {
+      // Email failed, but booking is still saved
+      console.warn('⚠️ Booking saved but email failed:', emailResult.error);
+      // Optionally show a warning to the user
+      // alert('Booking confirmed! However, we couldn\'t send the confirmation email.');
+    }
+
+    // ============================================
+    // 6️⃣ MOVE to success/confirmation step
+    // ============================================
     setBookingStep(5);
+
+    // Optional: Show success message
+    // alert('Booking confirmed! Check your email for details.');
+
   } catch (err) {
-    console.error('Booking error:', err);
+    // ============================================
+    // 7️⃣ HANDLE ERRORS - booking creation failed
+    // ============================================
+    console.error('❌ Booking error:', err);
     setError('Failed to create booking. Please try again.');
     alert('Failed to create booking. Please try again.');
   } finally {
+    // ============================================
+    // 8️⃣ ALWAYS stop loading spinner
+    // ============================================
     setLoading(false);
   }
 };
+
+
+
+// const submitBooking = async (paymentReference) => {
+//   setLoading(true);
+//   setError(null);
+
+//   try {
+//     // 1️⃣ Save booking to Supabase
+//     const { data, error } = await supabase
+//       .from('bookings')
+//       .insert([
+//         {
+//           barber_id: selectedBarber.id,
+//           service_id: selectedService.id,
+//           customer_name: customerInfo.name,
+//           customer_email: customerInfo.email,
+//           customer_phone: customerInfo.phone,
+//           appointment_date: selectedDate,
+//           appointment_time: selectedTime,
+//           payment_method: paymentMethod,
+//           payment_reference: paymentReference,
+//           status: 'confirmed',
+//           payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
+//           is_walk_in: false,
+//         },
+//       ])
+//       .select();
+
+//     if (error) throw error;
+
+//     setBookingStep(5);
+//   } catch (err) {
+//     console.error('Booking error:', err);
+//     setError('Failed to create booking. Please try again.');
+//     alert('Failed to create booking. Please try again.');
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 
 
