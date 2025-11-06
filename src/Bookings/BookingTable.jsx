@@ -4,7 +4,7 @@ import { CheckCircle,X } from "lucide-react";
 export const BookingTable = ({ bookings, onComplete, onCancel }) => (
   <div className="overflow-x-auto">
     <table className="w-full">
-      <thead className="bg-gray-50">
+      <thead className="bg-gray-50 cinzel">
         <tr>
           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Customer</th>
           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Service</th>
@@ -15,10 +15,10 @@ export const BookingTable = ({ bookings, onComplete, onCancel }) => (
           <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      <tbody className="divide-y divide-gray-200 nunito">
         {bookings.length === 0 ? (
           <tr>
-            <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+            <td colSpan="7" className="px-4 py-8 text-center text-gray-500 bellefair">
               No bookings found
             </td>
           </tr>
