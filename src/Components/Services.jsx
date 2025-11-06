@@ -1,97 +1,103 @@
+
+
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const services = {
-  Featured: [
+  Haircuts: [
     {
-      name: "Line Up / Shape Up",
-      price: "₵25",
-      description:
-        "Master-crafted edge definition that highlights your best features. Our barbers use traditional techniques for razor-sharp precision.",
-    },
-    {
-      name: "Beard Trim",
-      price: "₵40",
-      description:
-        "Transform your facial hair with our premium beard styling service. Expertly shaped and defined for a distinguished gentleman's look.",
-    },
-    {
-      name: "Kids Haircut",
-      price: "₵50",
-      description:
-        "Start them young with style. Our kid-friendly approach ensures comfort while delivering age-appropriate cuts that parents love.",
-    },
-    {
-      name: "Taper Fade",
-      price: "₵60",
-      description:
-        "Our most requested service. Experience a flawless blend from skin to length, customized to complement your face shape and style.",
-    },
-    {
-      name: "Duo Experience",
-      price: "₵100",
-      description:
-        "Bring a friend and save. Two premium cuts with the same attention to detail and style that Hazard Kutz is known for.",
-    },
-  ],
-  Waves: [
-    {
-      name: "For The Classic Men",
-      price: "₵100",
-      description:
-        "Men who want to achieve a classic look with a modern twist. This service includes a detailed consultation to ensure the perfect style for your face shape and hair type.",
-    },
-    {
-      name: "For The Modern Women",
+      name: "Haircut",
       price: "₵70",
       description:
-        "Custom wave styling that works with your natural texture. Ideal for creating movement and dimension in various hair types.",
-    },
-  ],
-  Dye: [
-    {
-      name: "Gold Standard Blonde",
-      price: "₵120",
-      description:
-        "Premium blonde transformation with careful attention to tone and hair health. Includes treatment to maintain strength and shine.",
+        "A clean, sharp haircut crafted to your preferred style. Perfect for maintaining your signature look.",
     },
     {
-      name: "Black Dye",
+      name: "Haircut & Dye",
       price: "₵100",
       description:
-        "Rich, deep black that enhances your natural color. Our formula is designed to provide maximum coverage while maintaining hair health.",
+        "Get a fresh cut paired with vibrant color application for a bold, standout appearance.",
     },
     {
-      name: "White Dye",
-      price: "₵250",
+      name: "Haircut & Waves (Men)",
+      price: "₵170",
       description:
-        "The ultimate statement look. Our careful process achieves stunning white or platinum tones while protecting your hair.",
+        "Designed for men who love the 360-wave look. Includes a precision cut and wave styling.",
     },
-  ],
-  "Home Service": [
     {
-      name: "Elite Experience",
+      name: "Haircut & Curls (Ladies)",
+      price: "₵200",
+      description:
+        "Tailored for women who prefer a fresh cut and defined curls. Soft, stylish, and full of bounce.",
+    },
+    {
+      name: "Permcut",
+      price: "₵200",
+      description:
+        "A combination of perm and haircut for lasting texture, volume, and a smooth, defined finish.",
+    },
+    {
+      name: "Permcut & Bleach",
       price: "₵300",
       description:
-        "Bring the barbershop to you. Our master barbers deliver the full Hazard Kutz experience in the comfort and privacy of your home.",
+        "Transform your look with a stylish permcut followed by a full bleach for a striking blonde tone.",
     },
     {
-      name: "Family Package",
-      price: "₵500",
+      name: "Permcut & Color",
+      price: "₵350",
       description:
-        "Perfect for families or groups. Enjoy premium haircuts and grooming services for up to four people, all in the comfort of your home.",
+        "Add color to your permcut for a personalized, fashionable finish. Great for unique and trendy styles.",
+    },
+    {
+      name: "Haircut & Bleach (Gold)",
+      price: "₵170",
+      description:
+        "A modern golden-bleach finish with a clean haircut — ideal for clients who love a bright, standout look.",
+    },
+    {
+      name: "Haircut & Dye (Color)",
+      price: "₵250",
+      description:
+        "Combine a fresh haircut with a premium color treatment for a full style transformation.",
+    },
+  ],
+  Grooming: [
+    {
+      name: "Shape / Line Up",
+      price: "₵50",
+      description:
+        "Clean up your edges and lines with razor precision to maintain a neat, fresh appearance.",
+    },
+    {
+      name: "Shape & Shave",
+      price: "₵100",
+      description:
+        "Includes a full shape-up with an expert shave for a smooth and polished look.",
+    },
+    {
+      name: "Eyebrow",
+      price: "₵50",
+      description:
+        "Detailed eyebrow shaping to enhance your facial definition with finesse and accuracy.",
+    },
+    {
+      name: "Piercing",
+      price: "₵100",
+      description:
+        "Professional ear or nose piercing with clean, hygienic equipment and stylish precision.",
     },
   ],
 };
 
-const tabs = ["Featured", "Waves", "Dye", "Home Service"];
+// ✅ Updated tabs to match services keys
+const tabs = ["Haircuts", "Grooming"];
 
 function Services() {
-  const [activeTab, setActiveTab] = useState("Featured");
+  const [activeTab, setActiveTab] = useState("Haircuts");
 
   return (
-    <div className="max-w-7xl  pt-20 pb-16 px-6 bg-gray-900">
+    <div className="max-w-7xl pt-20 pb-16 px-6 bg-gray-900">
       <div className="text-center mb-12">
         <span className="inline-block px-4 py-1 mb-4 cinzel text-xs sm:text-sm font-medium tracking-widest text-amber-300 uppercase border border-amber-400">
           Our Services
