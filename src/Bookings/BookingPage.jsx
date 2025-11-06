@@ -19,6 +19,10 @@ import { BookingSummary } from "./BookingSummary";
 import { BookingTable } from "./BookingTable";
 import { WalkInModal } from "./WalkInModal";
 import Spinner from "../Components/Spinner";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+  import { Resend } from 'resend';
+
 
 // ============= AUTH CONTEXT =============
 const AuthContext = createContext(null);
@@ -410,36 +414,41 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleAddWalkIn = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
 
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .insert([{
-          barber_id: formData.get('barber_id'),
-          service_id: formData.get('service_id'),
-          customer_name: formData.get('customer_name'),
-          customer_email: formData.get('customer_email') || 'walkin@hazardkutz.com',
-          customer_phone: formData.get('customer_phone'),
-          appointment_date: new Date().toISOString().split('T')[0],
+  const handleAddWalkIn = async (formData) => {
+  try {
+    const { error } = await supabase
+      .from("bookings")
+      .insert([
+        {
+          barber_id: formData.barber_id,
+          service_id: formData.service_id,
+          customer_name: formData.customer_name,
+          customer_email: formData.customer_email || "walkin@hazardkutz.com",
+          customer_phone: formData.customer_phone,
+          appointment_date: new Date().toISOString().split("T")[0],
           appointment_time: new Date().toTimeString().substring(0, 5),
-          payment_method: 'pay_at_shop',
-          status: 'confirmed',
-          payment_status: 'unpaid',
-          is_walk_in: true
-        }]);
+          payment_method: "pay_at_shop",
+          status: "confirmed",
+          payment_status: "unpaid",
+          is_walk_in: true,
+        },
+      ]);
 
-      if (error) throw error;
+    if (error) throw error;
 
-      setShowWalkInModal(false);
-      await loadData();
-    } catch (err) {
-      console.error('Add walk-in error:', err);
-      alert('Failed to add walk-in customer. Please try again.');
-    }
-  };
+    setShowWalkInModal(false);
+    await loadData();
+
+    return true; // signal success
+  } catch (err) {
+    console.error("Add walk-in error:", err);
+    alert("Failed to add walk-in customer. Please try again.");
+    return false;
+  }
+};
+
+
 
   const getFilteredBookings = () => {
     const today = new Date().toISOString().split("T")[0];
@@ -679,14 +688,20 @@ export const CustomerBookingPage = () => {
     await submitBooking(null);
   };
 
-  const submitBooking = async (paymentReference) => {
-    setLoading(true);
-    setError(null);
+const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
 
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .insert([{
+
+
+const submitBooking = async (paymentReference) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    // 1️⃣ Save booking to Supabase
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert([
+        {
           barber_id: selectedBarber.id,
           service_id: selectedService.id,
           customer_name: customerInfo.name,
@@ -698,21 +713,76 @@ export const CustomerBookingPage = () => {
           payment_reference: paymentReference,
           status: 'confirmed',
           payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
-          is_walk_in: false
-        }])
-        .select();
+          is_walk_in: false,
+        },
+      ])
+      .select();
 
-      if (error) throw error;
+    if (error) throw error;
 
-      setBookingStep(5);
-    } catch (err) {
-      console.error('Booking error:', err);
-      setError('Failed to create booking. Please try again.');
-      alert('Failed to create booking. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 2️⃣ Send email confirmation via Resend
+await fetch('/api/sendEmail', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: customerInfo.name,
+    email: customerInfo.email,
+    date: selectedDate,
+    time: selectedTime,
+    service: selectedService.name,
+    paymentMethod,
+  }),
+});
+
+
+    // 3️⃣ Proceed to confirmation screen
+    setBookingStep(5);
+  } catch (err) {
+    console.error('Booking error:', err);
+    setError('Failed to create booking. Please try again.');
+    alert('Failed to create booking. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  // const submitBooking = async (paymentReference) => {
+  //   setLoading(true);
+  //   setError(null);
+
+  //   try {
+  //     const { error } = await supabase
+  //       .from('bookings')
+  //       .insert([{
+  //         barber_id: selectedBarber.id,
+  //         service_id: selectedService.id,
+  //         customer_name: customerInfo.name,
+  //         customer_email: customerInfo.email,
+  //         customer_phone: customerInfo.phone,
+  //         appointment_date: selectedDate,
+  //         appointment_time: selectedTime,
+  //         payment_method: paymentMethod,
+  //         payment_reference: paymentReference,
+  //         status: 'confirmed',
+  //         payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
+  //         is_walk_in: false
+  //       }])
+  //       .select();
+
+  //     if (error) throw error;
+
+      
+  //     setBookingStep(5);
+  //   } catch (err) {
+  //     console.error('Booking error:', err);
+  //     setError('Failed to create booking. Please try again.');
+  //     alert('Failed to create booking. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const resetBooking = () => {
     setBookingStep(1);
@@ -761,35 +831,7 @@ export const CustomerBookingPage = () => {
         </div>
       </header>
 
-      {/* Progress Bar */}
-      {/* {bookingStep < 5 && (
-        <div className="bg-white border-b">
-          <div className="max-w-4xl mx-auto px-2 py-4">
-            <div className="flex items-center justify-between">
-              {[1, 2, 3, 4,5].map((step) => (
-                <div key={step} className="flex items-center flex-1">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                    bookingStep >= step ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'
-                  }`}>
-                    {step}
-                  </div>
-                  {step < 5 && (
-                    <div className={`flex-1 h-1 mx-2 transition-all ${
-                      bookingStep > step ? 'bg-amber-600' : 'bg-gray-200'
-                    }`} />
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt- text-xs font-medium text-gray-600">
-              <span>Service</span>
-              <span>Barber</span>
-              <span>Date & Time</span>
-              <span>Details</span>
-            </div>
-          </div>
-        </div>
-      )} */}
+      
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-4 bellefair">
@@ -851,13 +893,14 @@ export const CustomerBookingPage = () => {
                     <Calendar className="w-4 h-4 inline mr-2" />
                     Select Date
                   </label>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                    className="w-full p-4 border-1 border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none text-lg"
-                  />
+                  <DatePicker
+  selected={selectedDate ? new Date(selectedDate) : null}
+  onChange={(date) => setSelectedDate(date.toISOString().split("T")[0])}
+  minDate={new Date()}
+  dateFormat="yyyy-MM-dd"
+  className="w-full p-4 border border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none text-lg"
+  placeholderText="Select a date"
+/>
                 </div>
 
                 <div>
