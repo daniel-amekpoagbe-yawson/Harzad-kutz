@@ -116,7 +116,7 @@ export const ProtectedRoute = ({ element }) => {
 
 // ============= ADMIN LOGIN =============
 export const AdminLogin = () => {
-  const [credentials, setCredentials] = useState({ email: "admin@hazardkutz.com", password: "admin123" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
