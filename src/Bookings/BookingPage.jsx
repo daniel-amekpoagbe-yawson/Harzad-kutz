@@ -21,11 +21,11 @@ import { WalkInModal } from "./WalkInModal";
 import Spinner from "../Components/Spinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import emailjs from '@emailjs/browser';
+import emailjs from "@emailjs/browser";
+import { toast } from "react-hot-toast";
+import { confirmToast } from "../Components/Confirmtoast";
 
-
-emailjs.init('DqsrIQ8qCX1Ms9fDS');
-
+emailjs.init("DqsrIQ8qCX1Ms9fDS");
 
 // ============= AUTH CONTEXT =============
 const AuthContext = createContext(null);
@@ -40,17 +40,17 @@ export const AuthProvider = ({ children }) => {
 
   const checkAdminSession = () => {
     try {
-      const adminSession = sessionStorage.getItem('hazard_kutz_admin');
+      const adminSession = sessionStorage.getItem("hazard_kutz_admin");
       if (adminSession) {
         const admin = JSON.parse(adminSession);
         if (Date.now() - admin.loginTime < 24 * 60 * 60 * 1000) {
           setAdminUser(admin);
         } else {
-          sessionStorage.removeItem('hazard_kutz_admin');
+          sessionStorage.removeItem("hazard_kutz_admin");
         }
       }
     } catch (error) {
-      console.error('Session check error:', error);
+      console.error("Session check error:", error);
     } finally {
       setLoading(false);
     }
@@ -61,14 +61,14 @@ export const AuthProvider = ({ children }) => {
       id: userData.id,
       email: userData.email,
       name: userData.name,
-      loginTime: Date.now()
+      loginTime: Date.now(),
     };
-    sessionStorage.setItem('hazard_kutz_admin', JSON.stringify(session));
+    sessionStorage.setItem("hazard_kutz_admin", JSON.stringify(session));
     setAdminUser(session);
   };
 
   const logout = () => {
-    sessionStorage.removeItem('hazard_kutz_admin');
+    sessionStorage.removeItem("hazard_kutz_admin");
     setAdminUser(null);
   };
 
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
 
 const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
 
@@ -94,7 +94,7 @@ export const ProtectedRoute = ({ element }) => {
 
   useEffect(() => {
     if (!loading && !adminUser) {
-      navigate('/admin/login');
+      navigate("/admin/login");
     }
   }, [adminUser, loading]);
 
@@ -112,8 +112,6 @@ export const ProtectedRoute = ({ element }) => {
   return adminUser ? element : null;
 };
 
-
-
 // ============= ADMIN LOGIN =============
 export const AdminLogin = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -126,7 +124,6 @@ export const AdminLogin = () => {
     window.location.href = path;
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -135,14 +132,14 @@ export const AdminLogin = () => {
     try {
       // First check if user exists and is active
       const { data, error } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', credentials.email.trim())
-        .eq('is_active', true)
-        .single();
+        .from("admin_users")
+        .select("*")
+        .eq("email", credentials.email.trim())
+        .eq("is_active", true);
+      //   .single();
 
-      console.log('Login attempt for:', credentials.email);
-      console.log('Database response:', { data, error });
+      // console.log("Login attempt for:", credentials.email);
+      // console.log("Database response:", { data, error });
 
       if (error || !data) {
         setError("Invalid credentials. Please try again.");
@@ -153,7 +150,7 @@ export const AdminLogin = () => {
       // Simple password comparison (in production, use proper hashing)
       if (data.password === credentials.password) {
         login(data);
-        navigate('/admin/dashboard');
+        navigate("/admin/dashboard");
       } else {
         setError("Invalid credentials. Please try again.");
       }
@@ -163,60 +160,7 @@ export const AdminLogin = () => {
     } finally {
       setLoading(false);
     }
-};
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     setError("");
-
-//     // try {
-//     //   const { data, error } = await supabase
-//     //     .from('admin_users')
-//     //     .select('*')
-//     //     .eq('email', credentials.email)
-//     //     .eq('password', credentials.password)
-//     //     .eq('is_active', true)
-//     //     .single();
-
-//     //   if (error || !data) {
-//     //     setError("Invalid credentials. Please try again.");
-//     //     setLoading(false);
-//     //     return;
-//     //   }
-
-
-//   // Add console logs to debug
-// try {
-//   console.log('Attempting login with:', {
-//     email: credentials.email,
-//     password: credentials.password
-//   });
-
-//   const { data, error } = await supabase
-//     .from('admin_users')
-//     .select('*')
-//     .eq('email', credentials.email)
-//     .eq('password', credentials.password)
-//     .eq('is_active', true)
-//     .single();
-
-//   console.log('Supabase response:', { data, error });
-
-//   if (error || !data) {
-//     setError("Invalid credentials. Please try again.");
-//     setLoading(false);
-//     return;
-//   }
-
-//       login(data);
-//       navigate('/admin/dashboard');
-//     } catch (err) {
-//       console.error("Login error:", err);
-//       setError("Login failed. Please try again.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
@@ -226,9 +170,13 @@ export const AdminLogin = () => {
             <Lock className="w-10 h-10 text-white" />
           </div>
         </div>
-        
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Admin Portal</h2>
-        <p className="text-gray-600 text-center mb-8">Sign in to manage bookings</p>
+
+        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">
+          Admin Portal
+        </h2>
+        <p className="text-gray-600 text-center mb-8">
+          Sign in to manage bookings
+        </p>
 
         {error && (
           <div className="bg-red-50 border-1 border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-center">
@@ -245,7 +193,9 @@ export const AdminLogin = () => {
               type="email"
               required
               value={credentials.email}
-              onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+              onChange={(e) =>
+                setCredentials({ ...credentials, email: e.target.value })
+              }
               className="w-full p-3 border-1 border-gray-300 rounded-lg focus:border-amber-600 focus:outline-none transition-colors"
               placeholder="admin@hazardkutz.com"
             />
@@ -260,7 +210,9 @@ export const AdminLogin = () => {
                 type={showPassword ? "text" : "password"}
                 required
                 value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                onChange={(e) =>
+                  setCredentials({ ...credentials, password: e.target.value })
+                }
                 className="w-full p-3 border-1 border-gray-300 rounded-lg focus:border-amber-600 focus:outline-none pr-10 transition-colors"
                 placeholder="Enter your password"
               />
@@ -269,7 +221,11 @@ export const AdminLogin = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
           </div>
@@ -283,9 +239,9 @@ export const AdminLogin = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center bellefair">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="text-amber-600 hover:text-amber-700 font-medium"
           >
             ← Back to Home
@@ -314,52 +270,72 @@ export const AdminDashboard = () => {
     setLoading(true);
     try {
       const [barbersRes, servicesRes, bookingsRes] = await Promise.all([
-        supabase.from('barbers').select('*').eq('is_active', true).order('name'),
-        supabase.from('services').select('*').eq('is_active', true).order('price'),
-        supabase.from('bookings').select(`
+        supabase
+          .from("barbers")
+          .select("*")
+          .eq("is_active", true)
+          .order("name"),
+        supabase
+          .from("services")
+          .select("*")
+          .eq("is_active", true)
+          .order("price"),
+        supabase
+          .from("bookings")
+          .select(
+            `
           id, customer_name, customer_email, customer_phone, appointment_date,
           appointment_time, status, payment_method, payment_status, is_walk_in,
           barbers(name), services(name)
-        `).order('appointment_date', { ascending: false }).order('appointment_time', { ascending: false })
+        `
+          )
+          .order("appointment_date", { ascending: false })
+          .order("appointment_time", { ascending: false }),
       ]);
 
       if (barbersRes.data) {
-        setBarbers(barbersRes.data.map(b => ({
-          id: b.id,
-          name: b.name,
-          photoUrl: b.photo_url,
-          specialties: b.specialties || []
-        })));
+        setBarbers(
+          barbersRes.data.map((b) => ({
+            id: b.id,
+            name: b.name,
+            photoUrl: b.photo_url,
+            specialties: b.specialties || [],
+          }))
+        );
       }
 
       if (servicesRes.data) {
-        setServices(servicesRes.data.map(s => ({
-          id: s.id,
-          name: s.name,
-          description: s.description,
-          price: parseFloat(s.price),
-          duration: s.duration
-        })));
+        setServices(
+          servicesRes.data.map((s) => ({
+            id: s.id,
+            name: s.name,
+            description: s.description,
+            price: parseFloat(s.price),
+            duration: s.duration,
+          }))
+        );
       }
 
       if (bookingsRes.data) {
-        setBookings(bookingsRes.data.map(b => ({
-          id: b.id,
-          customerName: b.customer_name,
-          customerEmail: b.customer_email,
-          customerPhone: b.customer_phone,
-          date: b.appointment_date,
-          time: b.appointment_time,
-          status: b.status,
-          paymentMethod: b.payment_method,
-          paymentStatus: b.payment_status,
-          isWalkIn: b.is_walk_in,
-          barberName: b.barbers?.name || 'Unknown',
-          serviceName: b.services?.name || 'Unknown'
-        })));
+        setBookings(
+          bookingsRes.data.map((b) => ({
+            id: b.id,
+            customerName: b.customer_name,
+            customerEmail: b.customer_email,
+            customerPhone: b.customer_phone,
+            date: b.appointment_date,
+            time: b.appointment_time,
+            status: b.status,
+            paymentMethod: b.payment_method,
+            paymentStatus: b.payment_status,
+            isWalkIn: b.is_walk_in,
+            barberName: b.barbers?.name || "Unknown",
+            serviceName: b.services?.name || "Unknown",
+          }))
+        );
       }
     } catch (err) {
-      console.error('Error loading data:', err);
+      console.error("Error loading data:", err);
     } finally {
       setLoading(false);
     }
@@ -369,10 +345,14 @@ export const AdminDashboard = () => {
     loadData();
 
     const bookingsSubscription = supabase
-      .channel('bookings_channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
-        loadData();
-      })
+      .channel("bookings_channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bookings" },
+        () => {
+          loadData();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -382,47 +362,54 @@ export const AdminDashboard = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
+  };
+  // Confirm before cancelling booking
+  const handleCancelBooking = (bookingId) => {
+    confirmToast("Are you sure you want to cancel this booking?", async () => {
+      try {
+        const { error } = await supabase
+          .from("bookings")
+          .update({
+            status: "cancelled",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", bookingId);
+
+        if (error) throw error;
+
+        toast.success("Booking cancelled successfully");
+        await loadData();
+      } catch (err) {
+        console.error("Cancel booking error:", err);
+        toast.error("Failed to cancel booking. Please try again.");
+      }
+    });
   };
 
-  const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-
-    try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-        .eq('id', bookingId);
-
-      if (error) throw error;
-      await loadData();
-    } catch (err) {
-      console.error('Cancel booking error:', err);
-      alert('Failed to cancel booking. Please try again.');
-    }
-  };
-
+  // Complete booking
   const handleCompleteBooking = async (bookingId) => {
     try {
       const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'completed', payment_status: 'paid', updated_at: new Date().toISOString() })
-        .eq('id', bookingId);
+        .from("bookings")
+        .update({
+          status: "completed",
+          payment_status: "paid",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", bookingId);
 
       if (error) throw error;
       await loadData();
     } catch (err) {
-      console.error('Complete booking error:', err);
-      alert('Failed to complete booking. Please try again.');
+      console.error("Complete booking error:", err);
+      toast.error("Failed to complete booking. Please try again.");
     }
   };
 
-
   const handleAddWalkIn = async (formData) => {
-  try {
-    const { error } = await supabase
-      .from("bookings")
-      .insert([
+    try {
+      const { error } = await supabase.from("bookings").insert([
         {
           barber_id: formData.barber_id,
           service_id: formData.service_id,
@@ -438,31 +425,33 @@ export const AdminDashboard = () => {
         },
       ]);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    setShowWalkInModal(false);
-    await loadData();
+      setShowWalkInModal(false);
+      await loadData();
 
-    return true; // signal success
-  } catch (err) {
-    console.error("Add walk-in error:", err);
-    alert("Failed to add walk-in customer. Please try again.");
-    return false;
-  }
-};
-
-
+      return true; // signal success
+    } catch (err) {
+      console.error("Add walk-in error:", err);
+      toast.error("Failed to add walk-in customer. Please try again.");
+      return false;
+    }
+  };
 
   const getFilteredBookings = () => {
     const today = new Date().toISOString().split("T")[0];
 
     switch (adminFilter) {
       case "today":
-        return bookings.filter(b => b.date === today && b.status !== "cancelled");
+        return bookings.filter(
+          (b) => b.date === today && b.status !== "cancelled"
+        );
       case "upcoming":
-        return bookings.filter(b => b.date >= today && b.status !== "cancelled");
+        return bookings.filter(
+          (b) => b.date >= today && b.status !== "cancelled"
+        );
       case "cancelled":
-        return bookings.filter(b => b.status === "cancelled");
+        return bookings.filter((b) => b.status === "cancelled");
       default:
         return bookings;
     }
@@ -473,12 +462,16 @@ export const AdminDashboard = () => {
       <header className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-amber-400 cinzel">ADMIN DASHBOARD</h3>
-            <p className="text-gray-300 bellefair">Welcome, {adminUser?.name}</p>
+            <h3 className="text-2xl font-bold text-amber-400 cinzel">
+              ADMIN DASHBOARD
+            </h3>
+            <p className="text-gray-300 bellefair">
+              Welcome, {adminUser?.name}
+            </p>
           </div>
           <div className="flex gap-3 bellefair">
             <button
-              onClick={() => navigate('/bookingpage')}
+              onClick={() => navigate("/bookingpage")}
               className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               View Site
@@ -497,7 +490,9 @@ export const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800 cinzel">Bookings Management</h2>
+            <h2 className="text-2xl font-bold text-gray-800 cinzel">
+              Bookings Management
+            </h2>
             <button
               onClick={() => setShowWalkInModal(true)}
               className="bg-amber-600 text-white px-4 py-2 bellefair rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center gap-2"
@@ -556,7 +551,11 @@ export const CustomerBookingPage = () => {
   const [selectedBarber, setSelectedBarber] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  const [customerInfo, setCustomerInfo] = useState({ name: "", email: "", phone: "" });
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
   const [paymentMethod, setPaymentMethod] = useState("pay_at_shop");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -564,39 +563,35 @@ export const CustomerBookingPage = () => {
   const [barbers, setBarbers] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
 
-  // const navigate = (path) => {
-  //   window.location.href = path;
-  // };
-
   const loadInitialData = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const { data: barbersData, error: barbersError } = await supabase
-        .from('barbers')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
+        .from("barbers")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
 
       if (barbersError) throw barbersError;
 
       const { data: servicesData, error: servicesError } = await supabase
-        .from('services')
-        .select('*')
-        .eq('is_active', true)
-        .order('price');
+        .from("services")
+        .select("*")
+        .eq("is_active", true)
+        .order("price");
 
       if (servicesError) throw servicesError;
 
-      const formattedBarbers = barbersData.map(barber => ({
+      const formattedBarbers = barbersData.map((barber) => ({
         id: barber.id,
         name: barber.name,
         photoUrl: barber.photo_url,
         specialties: barber.specialties || [],
       }));
 
-      const formattedServices = servicesData.map(service => ({
+      const formattedServices = servicesData.map((service) => ({
         id: service.id,
         name: service.name,
         description: service.description,
@@ -607,8 +602,8 @@ export const CustomerBookingPage = () => {
       setBarbers(formattedBarbers);
       setServices(formattedServices);
     } catch (err) {
-      console.error('Error loading data:', err);
-      setError('Failed to load data. Please refresh the page.');
+      console.error("Error loading data:", err);
+      setError("Failed to load data. Please refresh the page.");
     } finally {
       setLoading(false);
     }
@@ -630,42 +625,42 @@ export const CustomerBookingPage = () => {
 
     try {
       const { data: bookedSlots, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('appointment_time')
-        .eq('barber_id', barberId)
-        .eq('appointment_date', date)
-        .neq('status', 'cancelled');
+        .from("bookings")
+        .select("appointment_time")
+        .eq("barber_id", barberId)
+        .eq("appointment_date", date)
+        .neq("status", "cancelled");
 
       if (bookingsError) throw bookingsError;
 
       const { data: blockedSlots, error: blockedError } = await supabase
-        .from('blocked_slots')
-        .select('start_time, end_time')
-        .eq('barber_id', barberId)
-        .eq('date', date);
+        .from("blocked_slots")
+        .select("start_time, end_time")
+        .eq("barber_id", barberId)
+        .eq("date", date);
 
       if (blockedError) throw blockedError;
 
       const unavailableTimes = new Set();
 
-      bookedSlots?.forEach(booking => {
+      bookedSlots?.forEach((booking) => {
         unavailableTimes.add(booking.appointment_time.substring(0, 5));
       });
 
-      blockedSlots?.forEach(blocked => {
+      blockedSlots?.forEach((blocked) => {
         const start = blocked.start_time.substring(0, 5);
         const end = blocked.end_time.substring(0, 5);
-        
-        slots.forEach(slot => {
+
+        slots.forEach((slot) => {
           if (slot >= start && slot < end) {
             unavailableTimes.add(slot);
           }
         });
       });
 
-      return slots.filter(slot => !unavailableTimes.has(slot));
+      return slots.filter((slot) => !unavailableTimes.has(slot));
     } catch (err) {
-      console.error('Error generating time slots:', err);
+      console.error("Error generating time slots:", err);
       return slots;
     }
   };
@@ -680,149 +675,155 @@ export const CustomerBookingPage = () => {
     loadSlots();
   }, [selectedDate, selectedBarber]);
 
-  const handleBookingSubmit = async (e) => {
-    e.preventDefault();
-    
+  // Handle Paystack Inline Payment
+  const handlePaystackPayment = () => {
+    // Validate form fields
+    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Check if Paystack is loaded
+    if (!window.PaystackPop) {
+      toast.error("Payment system not loaded. Please refresh the page.");
+      return;
+    }
+
+    const handler = window.PaystackPop.setup({
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY, // Paystack public key
+      email: customerInfo.email,
+      amount: selectedService.price * 100, // Amount in pesewas (GHS)
+      currency: "GHS",
+      ref: "" + Math.floor(Math.random() * 1000000000 + 1), // Generate random reference
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Customer Name",
+            variable_name: "customer_name",
+            value: customerInfo.name,
+          },
+          {
+            display_name: "Service",
+            variable_name: "service",
+            value: selectedService.name,
+          },
+          {
+            display_name: "Barber",
+            variable_name: "barber",
+            value: selectedBarber.name,
+          },
+          {
+            display_name: "Appointment Date",
+            variable_name: "appointment_date",
+            value: selectedDate,
+          },
+          {
+            display_name: "Appointment Time",
+            variable_name: "appointment_time",
+            value: selectedTime,
+          },
+        ],
+      },
+      onClose: function () {
+        toast.error("Payment cancelled. Please try again.");
+      },
+      callback: function (response) {
+        handlePaystackSuccess(response);
+      },
+    });
+
+    handler.openIframe();
+  };
+
+  // Handle successful Paystack payment
+  const handlePaystackSuccess = async (response) => {
+    console.log("Payment successful:", response);
+
+    toast.success("Payment successful! Creating your booking...");
+
+    // Submit booking with payment reference
+    await submitBooking(response.reference);
+  };
+
+  const handleBookingSubmit = async () => {
+    // Validate form fields
+    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
     if (paymentMethod === "online") {
-      // Payment will be handled by Paystack button
+      // This should never happen now, but just in case
+      toast.error("Please use the Pay with Paystack button");
       return;
     }
 
     await submitBooking(null);
   };
 
-  // const submitBooking = async (paymentReference) => {
-  //   setLoading(true);
-  //   setError(null);
+  const submitBooking = async (paymentReference) => {
+    setLoading(true);
+    setError(null);
 
-  //   try {
-  //     const { error } = await supabase
-  //       .from('bookings')
-  //       .insert([{
-  //         barber_id: selectedBarber.id,
-  //         service_id: selectedService.id,
-  //         customer_name: customerInfo.name,
-  //         customer_email: customerInfo.email,
-  //         customer_phone: customerInfo.phone,
-  //         appointment_date: selectedDate,
-  //         appointment_time: selectedTime,
-  //         payment_method: paymentMethod,
-  //         payment_reference: paymentReference,
-  //         status: 'confirmed',
-  //         payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
-  //         is_walk_in: false
-  //       }])
-  //       .select();
-
-  //     if (error) throw error;
-
-      
-  //     setBookingStep(5);
-  //   } catch (err) {
-  //     console.error('Booking error:', err);
-  //     setError('Failed to create booking. Please try again.');
-  //     alert('Failed to create booking. Please try again.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-
-
-// Initialize EmailJS with your public key (do this once in your component or at the top of your file)
-// Replace 'YOUR_PUBLIC_KEY' with your actual EmailJS public key
-
-const submitBooking = async (paymentReference) => {
-  setLoading(true);
-  setError(null);
-
-  try {
-    const {  error } = await supabase
-      .from('bookings')
-      .insert([{
-        barber_id: selectedBarber.id,
-        service_id: selectedService.id,
-        customer_name: customerInfo.name,
-        customer_email: customerInfo.email,
-        customer_phone: customerInfo.phone,
-        appointment_date: selectedDate,
-        appointment_time: selectedTime,
-        payment_method: paymentMethod,
-        payment_reference: paymentReference,
-        status: 'confirmed',
-        payment_status: paymentMethod === 'online' ? 'paid' : 'unpaid',
-        is_walk_in: false
-      }])
-      .select();
-
-    if (error) throw error;
-
-    // Send confirmation email
     try {
-      const emailParams = {
-        to_email: customerInfo.email,
-        to_name: customerInfo.name,
-        barber_name: selectedBarber.name,
-        service_name: selectedService.name,
-        appointment_date: new Date(selectedDate).toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        appointment_time: selectedTime,
-        payment_method: paymentMethod,
-        payment_reference: paymentReference,
-        payment_status: paymentMethod === 'online' ? 'Paid' : 'Pay at venue'
-      };
+      const { error } = await supabase
+        .from("bookings")
+        .insert([
+          {
+            barber_id: selectedBarber.id,
+            service_id: selectedService.id,
+            customer_name: customerInfo.name,
+            customer_email: customerInfo.email,
+            customer_phone: customerInfo.phone,
+            appointment_date: selectedDate,
+            appointment_time: selectedTime,
+            payment_method: paymentMethod,
+            payment_reference: paymentReference,
+            status: "confirmed",
+            payment_status: paymentMethod === "online" ? "paid" : "unpaid",
+            is_walk_in: false,
+          },
+        ])
+        .select();
 
-      await emailjs.send(
-        'service_m24e4ce',     // Replace with your EmailJS service ID
-        'template_ryjb2vt',    // Replace with your EmailJS template ID
-        emailParams
-      );
+      if (error) throw error;
 
-      console.log('Email sent successfully');
-    } catch (emailError) {
-      console.error('Failed to send email:', emailError);
-      // Don't fail the booking if email fails
+      // Send confirmation email
+      try {
+        const emailParams = {
+          to_email: customerInfo.email,
+          to_name: customerInfo.name,
+          barber_name: selectedBarber.name,
+          service_name: selectedService.name,
+          appointment_date: new Date(selectedDate).toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          appointment_time: selectedTime,
+          payment_method: paymentMethod,
+          payment_reference: paymentReference,
+          payment_status: paymentMethod === "online" ? "Paid" : "Pay at venue",
+        };
+
+        await emailjs.send("service_m24e4ce", "template_ryjb2vt", emailParams);
+
+        console.log("Email sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send email:", emailError);
+        // Don't fail the booking if email fails
+      }
+
+      setBookingStep(5);
+    } catch (err) {
+      console.error("Booking error:", err);
+      setError("Failed to create booking. Please try again.");
+      alert("Failed to create booking. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setBookingStep(5);
-  } catch (err) {
-    console.error('Booking error:', err);
-    setError('Failed to create booking. Please try again.');
-    alert('Failed to create booking. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
-// ```
-
-// // ## Step 4: Create Email Template in EmailJS
-
-// // In your EmailJS dashboard, create a template with these variables:
-// // ```
-// Subject: Booking Confirmation - {{barber_name}}
-
-// Hi {{to_name}},
-
-// Your appointment has been confirmed!
-
-// Appointment Details:
-// - Barber: {{barber_name}}
-// - Service: {{service_name}}
-// - Date: {{appointment_date}}
-// - Time: {{appointment_time}}
-// - Payment Method: {{payment_method}}
-// - Payment Status: {{payment_status}}
-// - Reference: {{payment_reference}}
-
-// We look forward to seeing you!
-
-// Best regards,
-// Your Barbershop Team
-
+  };
 
   const resetBooking = () => {
     setBookingStep(1);
@@ -842,17 +843,15 @@ const submitBooking = async (paymentReference) => {
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h2 className="text-lg sm:text-3xl font-bold cinzel text-amber-400 mb-2">HAZARDKUTZ BOOKING</h2>
-              <p className="text-base sm:text-xl bellefair text-gray-300">Where Style Meets Precision</p>
+              <h2 className="text-lg sm:text-3xl font-bold cinzel text-amber-400 mb-2">
+                HAZARDKUTZ BOOKING
+              </h2>
+              <p className="text-base sm:text-xl bellefair text-gray-300">
+                Where Style Meets Precision
+              </p>
             </div>
-            {/* <button
-              onClick={() => navigate('/admin/login')}
-              className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors backdrop-blur-sm border border-white/20"
-            >
-              Admin Login
-            </button> */}
           </div>
-          
+
           {/* Contact Info */}
           <div className="mt-4 flex flex-wrap gap-4 text-sm bellefair">
             <div className="flex items-center gap-2">
@@ -871,8 +870,6 @@ const submitBooking = async (paymentReference) => {
         </div>
       </header>
 
-      
-
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-4 bellefair">
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -885,15 +882,27 @@ const submitBooking = async (paymentReference) => {
           {bookingStep === 1 && (
             <div className="space-y-4">
               <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Choose Your Service</h2>
-                <p className="text-gray-600">Your fresh look starts here — whether you’re in for a quick shape-up or a full transformation, we’ve got you covered.</p>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  Choose Your Service
+                </h2>
+                <p className="text-gray-600">
+                  Your fresh look starts here — whether you’re in for a quick
+                  shape-up or a full transformation, we’ve got you covered.
+                </p>
               </div>
               {loading ? (
-               <Spinner/>
+                <Spinner />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {services.map((service) => (
-                    <ServiceCard key={service.id} service={service} onSelect={(s) => { setSelectedService(s); setBookingStep(2); }} />
+                    <ServiceCard
+                      key={service.id}
+                      service={service}
+                      onSelect={(s) => {
+                        setSelectedService(s);
+                        setBookingStep(2);
+                      }}
+                    />
                   ))}
                 </div>
               )}
@@ -902,16 +911,30 @@ const submitBooking = async (paymentReference) => {
 
           {bookingStep === 2 && (
             <div className="space-y-2">
-              <button onClick={() => setBookingStep(1)} className="text-amber-500 hover:text-amber-600 flex items-center gap-2 mb-4 font-medium">
+              <button
+                onClick={() => setBookingStep(1)}
+                className="text-amber-500 hover:text-amber-600 flex items-center gap-2 mb-4 font-medium"
+              >
                 ← Back to Services
               </button>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Select Your Barber</h2>
-                <p className="text-gray-600">All our barbers are certified professionals</p>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  Select Your Barber
+                </h2>
+                <p className="text-gray-600">
+                  All our barbers are certified professionals
+                </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {barbers.map((barber) => (
-                  <BarberCard key={barber.id} barber={barber} onSelect={(b) => { setSelectedBarber(b); setBookingStep(3); }} />
+                  <BarberCard
+                    key={barber.id}
+                    barber={barber}
+                    onSelect={(b) => {
+                      setSelectedBarber(b);
+                      setBookingStep(3);
+                    }}
+                  />
                 ))}
               </div>
             </div>
@@ -919,12 +942,20 @@ const submitBooking = async (paymentReference) => {
 
           {bookingStep === 3 && (
             <div className="space-y-6">
-              <button onClick={() => setBookingStep(2)} className="text-amber-600 hover:text-amber-700 flex items-center gap-2 mb-4 font-medium">
+              <button
+                onClick={() => setBookingStep(2)}
+                className="text-amber-600 hover:text-amber-700 flex items-center gap-2 mb-4 font-medium"
+              >
                 ← Back to Barbers
               </button>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Pick Your Time</h2>
-                <p className="text-gray-600">Service: {selectedService?.name} | Barber: {selectedBarber?.name}</p>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  Pick Your Time
+                </h2>
+                <p className="text-gray-600">
+                  Service: {selectedService?.name} | Barber:{" "}
+                  {selectedBarber?.name}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -934,13 +965,15 @@ const submitBooking = async (paymentReference) => {
                     Select Date
                   </label>
                   <DatePicker
-  selected={selectedDate ? new Date(selectedDate) : null}
-  onChange={(date) => setSelectedDate(date.toISOString().split("T")[0])}
-  minDate={new Date()}
-  dateFormat="yyyy-MM-dd"
-  className="w-full p-4 border border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none text-lg"
-  placeholderText="Select a date"
-/>
+                    selected={selectedDate ? new Date(selectedDate) : null}
+                    onChange={(date) =>
+                      setSelectedDate(date.toISOString().split("T")[0])
+                    }
+                    minDate={new Date()}
+                    dateFormat="yyyy-MM-dd"
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none text-lg"
+                    placeholderText="Select a date"
+                  />
                 </div>
 
                 <div>
@@ -966,10 +999,14 @@ const submitBooking = async (paymentReference) => {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-gray-500 text-center p-8 bg-gray-50 rounded-xl">No available slots for this date</p>
+                      <p className="text-gray-500 text-center p-8 bg-gray-50 rounded-xl">
+                        No available slots for this date
+                      </p>
                     )
                   ) : (
-                    <p className="text-gray-500 text-center p-8 bg-gray-50 rounded-xl">Please select a date first</p>
+                    <p className="text-gray-500 text-center p-8 bg-gray-50 rounded-xl">
+                      Please select a date first
+                    </p>
                   )}
                 </div>
               </div>
@@ -987,55 +1024,83 @@ const submitBooking = async (paymentReference) => {
 
           {bookingStep === 4 && (
             <div className="space-y-6">
-              <button onClick={() => setBookingStep(3)} className="text-amber-600 hover:text-amber-700 flex items-center gap-2 mb-4 font-medium">
+              <button
+                onClick={() => setBookingStep(3)}
+                className="text-amber-600 hover:text-amber-700 flex items-center gap-2 mb-4 font-medium"
+              >
                 ← Back to Date & Time
               </button>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Complete Your Booking</h2>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                  Complete Your Booking
+                </h2>
                 <p className="text-gray-600">Just a few more details</p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <form onSubmit={handleBookingSubmit} className="space-y-5">
+                  <div className="space-y-5">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Full Name *
+                      </label>
                       <input
                         type="text"
                         required
                         value={customerInfo.name}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            name: e.target.value,
+                          })
+                        }
                         className="w-full p-4 border-1 border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none"
                         placeholder="Enter your full name"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Email Address *
+                      </label>
                       <input
                         type="email"
                         required
                         value={customerInfo.email}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            email: e.target.value,
+                          })
+                        }
                         className="w-full p-4 border-1 border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none"
                         placeholder="your.email@example.com"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Phone Number *
+                      </label>
                       <input
                         type="tel"
                         required
                         value={customerInfo.phone}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
+                        onChange={(e) =>
+                          setCustomerInfo({
+                            ...customerInfo,
+                            phone: e.target.value,
+                          })
+                        }
                         className="w-full p-4 border-1 border-gray-300 rounded-xl focus:border-amber-600 focus:outline-none"
                         placeholder="0244123456"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Method *</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Payment Method *
+                      </label>
                       <div className="grid grid-cols-2 gap-4">
                         <button
                           type="button"
@@ -1051,7 +1116,7 @@ const submitBooking = async (paymentReference) => {
                         <button
                           type="button"
                           onClick={() => setPaymentMethod("online")}
-                          className={`p-4 border-1 rounded-xl font-bold transition-all  ${
+                          className={`p-4 border-1 rounded-xl font-bold transition-all ${
                             paymentMethod === "online"
                               ? "bg-amber-600 text-white border-amber-600 shadow-lg"
                               : "border-gray-300 hover:border-amber-600 hover:shadow-md"
@@ -1062,14 +1127,40 @@ const submitBooking = async (paymentReference) => {
                       </div>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 text-lg"
-                    >
-                      {loading ? "Processing..." : "Confirm Booking"}
-                    </button>
-                  </form>
+                    {/* Pay at Shop Button */}
+                    {paymentMethod === "pay_at_shop" && (
+                      <button
+                        type="button"
+                        onClick={handleBookingSubmit}
+                        disabled={
+                          loading ||
+                          !customerInfo.name ||
+                          !customerInfo.email ||
+                          !customerInfo.phone
+                        }
+                        className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 text-lg"
+                      >
+                        {loading ? "Processing..." : "Confirm Booking"}
+                      </button>
+                    )}
+
+                    {/* Pay Online Button */}
+                    {paymentMethod === "online" && (
+                      <button
+                        type="button"
+                        onClick={handlePaystackPayment}
+                        disabled={
+                          loading ||
+                          !customerInfo.name ||
+                          !customerInfo.email ||
+                          !customerInfo.phone
+                        }
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-bold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 text-lg"
+                      >
+                        {loading ? "Processing..." : "Pay with Paystack"}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -1089,9 +1180,12 @@ const submitBooking = async (paymentReference) => {
               <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto animate-bounce">
                 <CheckCircle className="w-16 h-16 text-green-600" />
               </div>
-              <h2 className="text-4xl font-bold text-gray-800">Booking Confirmed!</h2>
+              <h2 className="text-4xl font-bold text-gray-800">
+                Booking Confirmed!
+              </h2>
               <p className="text-gray-600 max-w-md mx-auto text-lg">
-                Your appointment has been successfully booked. We've sent a confirmation to {customerInfo.email}
+                Your appointment has been successfully booked. We've sent a
+                confirmation to {customerInfo.email}
               </p>
 
               <div className="max-w-md mx-auto">

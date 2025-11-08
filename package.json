@@ -13,6 +13,7 @@
     "@contentful/rich-text-react-renderer": "^16.1.0",
     "@contentful/rich-text-types": "^17.1.0",
     "@emailjs/browser": "^4.4.1",
+    "@paystack/inline-js": "^2.22.2",
     "@supabase/supabase-js": "^2.78.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.4",
