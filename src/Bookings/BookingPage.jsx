@@ -38,16 +38,19 @@ export const AuthProvider = ({ children }) => {
     checkAdminSession();
   }, []);
 
-  const checkAdminSession = () => {
+
+  const checkAdminSession = async () => {
     try {
-      const adminSession = sessionStorage.getItem("hazard_kutz_admin");
-      if (adminSession) {
-        const admin = JSON.parse(adminSession);
-        if (Date.now() - admin.loginTime < 24 * 60 * 60 * 1000) {
-          setAdminUser(admin);
-        } else {
-          sessionStorage.removeItem("hazard_kutz_admin");
-        }
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) throw error;
+      
+      if (session) {
+        setAdminUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.name || session.user.email,
+        });
       }
     } catch (error) {
       console.error("Session check error:", error);
@@ -56,21 +59,63 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (userData) => {
-    const session = {
-      id: userData.id,
-      email: userData.email,
-      name: userData.name,
-      loginTime: Date.now(),
-    };
-    sessionStorage.setItem("hazard_kutz_admin", JSON.stringify(session));
-    setAdminUser(session);
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
+    
+    if (data.user) {
+      setAdminUser({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.user_metadata?.name || data.user.email,
+      });
+    }
+    
+    return data;
   };
 
-  const logout = () => {
-    sessionStorage.removeItem("hazard_kutz_admin");
+  const logout = async () => {
+    await supabase.auth.signOut();
     setAdminUser(null);
   };
+
+  // const checkAdminSession = () => {
+  //   try {
+  //     const adminSession = sessionStorage.getItem("hazard_kutz_admin");
+  //     if (adminSession) {
+  //       const admin = JSON.parse(adminSession);
+  //       if (Date.now() - admin.loginTime < 24 * 60 * 60 * 1000) {
+  //         setAdminUser(admin);
+  //       } else {
+  //         sessionStorage.removeItem("hazard_kutz_admin");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Session check error:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const login = (userData) => {
+  //   const session = {
+  //     id: userData.id,
+  //     email: userData.email,
+  //     name: userData.name,
+  //     loginTime: Date.now(),
+  //   };
+  //   sessionStorage.setItem("hazard_kutz_admin", JSON.stringify(session));
+  //   setAdminUser(session);
+  // };
+
+  // const logout = () => {
+  //   sessionStorage.removeItem("hazard_kutz_admin");
+  //   setAdminUser(null);
+  // };
 
   return (
     <AuthContext.Provider value={{ adminUser, login, logout, loading }}>
@@ -983,12 +1028,12 @@ export const CustomerBookingPage = () => {
                   </label>
                   {selectedDate ? (
                     availableSlots.length > 0 ? (
-                      <div className="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto p-2">
+                      <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto p-1.5">
                         {availableSlots.map((slot) => (
                           <button
                             key={slot}
                             onClick={() => setSelectedTime(slot)}
-                            className={`py-3 px-12 rounded-lg border-1 font-medium transition-all ${
+                            className={`py-3 px-20 rounded-lg border-1 font-medium transition-all ${
                               selectedTime === slot
                                 ? "bg-amber-600 text-white border-1 border-amber-600 shadow-lg scale-102"
                                 : "border-gray-300 hover:border-amber-600 hover:shadow-md"
