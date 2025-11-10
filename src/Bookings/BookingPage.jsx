@@ -21,11 +21,9 @@ import { WalkInModal } from "./WalkInModal";
 import Spinner from "../Components/Spinner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import emailjs from "@emailjs/browser";
 import { toast } from "react-hot-toast";
 import { confirmToast } from "../Components/Confirmtoast";
-
-emailjs.init("DqsrIQ8qCX1Ms9fDS");
+import { sendBookingEmails } from "../services/sendEmail";
 
 // ============= AUTH CONTEXT =============
 const AuthContext = createContext(null);
@@ -153,7 +151,6 @@ export const AdminLogin = () => {
       setLoading(false);
     }
   };
- 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
@@ -781,26 +778,24 @@ export const CustomerBookingPage = () => {
 
       if (error) throw error;
 
-      // Send confirmation email
+      // ✅ NEW: Send confirmation email with React Email
       try {
-        const emailParams = {
-          to_email: customerInfo.email,
-          to_name: customerInfo.name,
-          barber_name: selectedBarber.name,
-          service_name: selectedService.name,
-          appointment_date: new Date(selectedDate).toLocaleDateString("en-US", {
+        await sendBookingEmails({
+          customerName: customerInfo.name,
+          customerEmail: customerInfo.email,
+          barberName: selectedBarber.name,
+          serviceName: selectedService.name,
+          appointmentDate: new Date(selectedDate).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
             month: "long",
             day: "numeric",
           }),
-          appointment_time: selectedTime,
-          payment_method: paymentMethod,
-          payment_reference: paymentReference,
-          payment_status: paymentMethod === "online" ? "Paid" : "Pay at venue",
-        };
-
-        await emailjs.send("service_m24e4ce", "template_ryjb2vt", emailParams);
+          appointmentTime: selectedTime,
+          paymentMethod: paymentMethod,
+          paymentReference: paymentReference,
+          paymentStatus: paymentMethod === "online" ? "Paid" : "Pay at venue",
+        });
 
         console.log("Email sent successfully");
       } catch (emailError) {
