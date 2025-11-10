@@ -38,13 +38,15 @@ export const AuthProvider = ({ children }) => {
     checkAdminSession();
   }, []);
 
-
   const checkAdminSession = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) throw error;
-      
+
       if (session) {
         setAdminUser({
           id: session.user.id,
@@ -64,9 +66,9 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
     });
-    
+
     if (error) throw error;
-    
+
     if (data.user) {
       setAdminUser({
         id: data.user.id,
@@ -74,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         name: data.user.user_metadata?.name || data.user.email,
       });
     }
-    
+
     return data;
   };
 
@@ -82,40 +84,6 @@ export const AuthProvider = ({ children }) => {
     await supabase.auth.signOut();
     setAdminUser(null);
   };
-
-  // const checkAdminSession = () => {
-  //   try {
-  //     const adminSession = sessionStorage.getItem("hazard_kutz_admin");
-  //     if (adminSession) {
-  //       const admin = JSON.parse(adminSession);
-  //       if (Date.now() - admin.loginTime < 24 * 60 * 60 * 1000) {
-  //         setAdminUser(admin);
-  //       } else {
-  //         sessionStorage.removeItem("hazard_kutz_admin");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Session check error:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const login = (userData) => {
-  //   const session = {
-  //     id: userData.id,
-  //     email: userData.email,
-  //     name: userData.name,
-  //     loginTime: Date.now(),
-  //   };
-  //   sessionStorage.setItem("hazard_kutz_admin", JSON.stringify(session));
-  //   setAdminUser(session);
-  // };
-
-  // const logout = () => {
-  //   sessionStorage.removeItem("hazard_kutz_admin");
-  //   setAdminUser(null);
-  // };
 
   return (
     <AuthContext.Provider value={{ adminUser, login, logout, loading }}>
@@ -175,37 +143,17 @@ export const AdminLogin = () => {
     setError("");
 
     try {
-      // First check if user exists and is active
-      const { data, error } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("email", credentials.email.trim())
-        .eq("is_active", true);
-      //   .single();
-
-      // console.log("Login attempt for:", credentials.email);
-      // console.log("Database response:", { data, error });
-
-      if (error || !data) {
-        setError("Invalid credentials. Please try again.");
-        setLoading(false);
-        return;
-      }
-
-      // Simple password comparison (in production, use proper hashing)
-      if (data.password === credentials.password) {
-        login(data);
-        navigate("/admin/dashboard");
-      } else {
-        setError("Invalid credentials. Please try again.");
-      }
+      // Authenticate with Supabase Auth
+      await login(credentials.email.trim(), credentials.password);
+      navigate("/admin/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError("Login failed. Please try again.");
+      setError("Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4">
@@ -1022,26 +970,42 @@ export const CustomerBookingPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    <Clock className="w-4 h-4 inline mr-2" />
+                  <h3 className="flex items-center gap-2 text-amber-700 font-semibold mb-3 text-sm sm:text-base">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
                     Select Time
-                  </label>
+                  </h3>
+
                   {selectedDate ? (
                     availableSlots.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto p-1.5">
-                        {availableSlots.map((slot) => (
-                          <button
-                            key={slot}
-                            onClick={() => setSelectedTime(slot)}
-                            className={`py-3 px-20 rounded-lg border-1 font-medium transition-all ${
-                              selectedTime === slot
-                                ? "bg-amber-600 text-white border-1 border-amber-600 shadow-lg scale-102"
-                                : "border-gray-300 hover:border-amber-600 hover:shadow-md"
-                            }`}
-                          >
-                            {slot}
-                          </button>
-                        ))}
+                      <div className="w-full max-w-md mx-auto">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-h-64 overflow-y-auto p-1 sm:p-2 bg-white rounded-xl shadow-inner">
+                          {availableSlots.map((slot) => (
+                            <button
+                              key={slot}
+                              onClick={() => setSelectedTime(slot)}
+                              className={`h-10 sm:h-11 flex items-center justify-center rounded-lg border text-sm sm:text-base font-medium transition-all duration-200 ${
+                                selectedTime === slot
+                                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-lg scale-105"
+                                  : "border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-700 hover:shadow-sm"
+                              }`}
+                            >
+                              {slot}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <p className="text-gray-500 text-center p-8 bg-gray-50 rounded-xl">
