@@ -1,4 +1,3 @@
-// Professional HazardKutz Booking Confirmation Email Template - Inspired by Clean Order Confirmation Design
 export const createBookingEmailHTML = (emailData) => {
   return `
 <!DOCTYPE html>
