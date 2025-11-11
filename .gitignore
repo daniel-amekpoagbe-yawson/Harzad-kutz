@@ -9,7 +9,8 @@ lerna-debug.log*
 # Environment files
 .env*
 .env
-
+.env.local
+.env.development.local
 
 # Dependencies and builds
 node_modules
