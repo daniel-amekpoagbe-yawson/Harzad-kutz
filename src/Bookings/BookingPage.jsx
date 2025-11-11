@@ -23,7 +23,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-hot-toast";
 import { confirmToast } from "../Components/Confirmtoast";
-import { sendBookingEmail } from "../services/sendEmail";
+import { sendAdminNotification, sendBookingEmail } from "../services/sendEmail";
 
 // ============= AUTH CONTEXT =============
 const AuthContext = createContext(null);
@@ -778,28 +778,38 @@ export const CustomerBookingPage = () => {
 
       if (error) throw error;
 
-      // ✅ NEW: Send confirmation email with React Email
-      try {
-        await sendBookingEmail({
-          customerName: customerInfo.name,
-          customerEmail: customerInfo.email,
-          barberName: selectedBarber.name,
-          serviceName: selectedService.name,
-          appointmentDate: new Date(selectedDate).toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          appointmentTime: selectedTime,
-          paymentMethod: paymentMethod,
-          paymentReference: paymentReference,
-          paymentStatus: paymentMethod === "online" ? "Paid" : "Pay at venue",
-        });
-      } catch (emailError) {
-        console.error("Failed to send email:", emailError);
-        // Don't fail the booking if email fails
-      }
+  
+    // Send emails (customer + admin)
+    try {
+      const emailPayload = {
+        customerName: customerInfo.name,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone,
+        barberName: selectedBarber.name,
+        serviceName: selectedService.name,
+        appointmentDate: new Date(selectedDate).toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        appointmentTime: selectedTime,
+        paymentMethod: paymentMethod,
+        paymentReference: paymentReference,
+        paymentStatus: paymentMethod === "online" ? "Paid" : "Pay at venue",
+      };
+
+      // Send customer confirmation email
+      await sendBookingEmail(emailPayload);
+
+      // Send admin notification email
+      await sendAdminNotification(emailPayload);
+
+      console.log("All emails sent successfully");
+    } catch (emailError) {
+      console.error("Failed to send emails:", emailError);
+      // Don't fail the booking if emails fail
+    }
 
       setBookingStep(5);
     } catch (err) {
