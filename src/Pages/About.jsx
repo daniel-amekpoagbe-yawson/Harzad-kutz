@@ -4,8 +4,8 @@ import { FaCut, FaMapMarkerAlt, FaClock, FaPhone } from "react-icons/fa";
 
 const AboutSection = memo(function AboutSection() {
   const mapCoordinates = {
-    lat: 5.739465,
-    lng: -0.237222,
+    lat: 5.6657754,
+    lng: 0.2396442,
     address: "St Johns - Dome - Kwabenya",
     city: "Greater Accra",
   };
@@ -72,7 +72,12 @@ const AboutSection = memo(function AboutSection() {
         mapInstance.remove();
       }
     };
-  }, [mapCoordinates.lat, mapCoordinates.lng, mapCoordinates.address, mapInstance]);
+  }, [
+    mapCoordinates.lat,
+    mapCoordinates.lng,
+    mapCoordinates.address,
+    mapInstance,
+  ]);
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -134,8 +139,8 @@ const AboutSection = memo(function AboutSection() {
 
               <div className="space-y-4 text-gray-800 bellefair text-lg">
                 <p>
-                  Founded in 2024, Hazard kutz began with a simple mission: to
-                  provide premium barber services in a comfortable, modern
+                  Founded in May 2025, Hazard kutz began with a simple mission:
+                  to provide premium barber services in a comfortable, modern
                   environment.
                 </p>
                 <p>
@@ -264,14 +269,6 @@ const AboutSection = memo(function AboutSection() {
                     >
                       Get Directions (Google)
                     </a>
-                    {/* <a
-                      href={`https://www.waze.com/ul?ll=${mapCoordinates.lat}%2C${mapCoordinates.lng}&navigate=yes`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Navigate with Waze
-                    </a> */}
                   </div>
                 </div>
               </div>

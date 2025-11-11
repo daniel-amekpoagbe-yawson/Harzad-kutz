@@ -110,7 +110,7 @@ function HeroSection() {
           {/* Primary CTA - encourages immediate booking */}
           <button
             className="px-4 py-3 bg-amber-400 text-black text-base font-extrabold uppercase tracking-wider rounded-lg hover:shadow-sm"
-            onClick={() => console.log("Navigate to /booking")}
+            onClick={() => navigate("/bookingpage")}
           >
             <span className="flex items-center justify-center bellefair  gap-2">
               <Clock className="w-5 h-5" />
