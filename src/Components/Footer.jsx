@@ -219,7 +219,7 @@ const Footer = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center text-sm text-gray-400">
             <div className="mb-4 lg:mb-0">
               <span className="inline-block px-4 py-1 text-xs font-medium tracking-widest text-amber-300 uppercase border border-amber-400 font-[Cinzel]">
-                Est. 2024
+                Est. May 2025
               </span>
             </div>
             <p>

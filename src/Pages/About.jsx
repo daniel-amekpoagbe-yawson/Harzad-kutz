@@ -1,83 +1,14 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { FaCut, FaMapMarkerAlt, FaClock, FaPhone } from "react-icons/fa";
 
 const AboutSection = memo(function AboutSection() {
   const mapCoordinates = {
-    lat: 5.6657754,
-    lng: 0.2396442,
-    address: "St Johns - Dome - Kwabenya",
-    city: "Greater Accra",
+    lat: 5.666042304815915,
+    lng: -0.2394081711626563,
+    address: "Atomic Roundabout, Kwabenya",
+    city: "Greater Accra, Ghana",
   };
-
-  const mapContainerRef = useRef(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [mapInstance, setMapInstance] = useState(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && mapContainerRef.current) {
-      if (!window.L) {
-        const linkEl = document.createElement("link");
-        linkEl.rel = "stylesheet";
-        linkEl.href =
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css";
-        document.head.appendChild(linkEl);
-
-        const scriptEl = document.createElement("script");
-        scriptEl.src =
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js";
-        scriptEl.onload = initMap;
-        document.head.appendChild(scriptEl);
-      } else {
-        initMap();
-      }
-    }
-
-    function initMap() {
-      if (mapContainerRef.current._leaflet_id) return;
-
-      const map = window.L.map(mapContainerRef.current).setView(
-        [mapCoordinates.lat, mapCoordinates.lng],
-        11
-      );
-
-      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      window.L.marker([mapCoordinates.lat, mapCoordinates.lng])
-        .addTo(map)
-        .bindPopup(
-          `<b class="cinzel">Hazard kutz</b><br><p className="text-gray-700 bellefair">
-  ${mapCoordinates.address}
-</p>`
-        )
-        .openPopup();
-
-      window.L.circle([mapCoordinates.lat, mapCoordinates.lng], {
-        radius: 300,
-        color: "#ffb900",
-        fillColor: "#fbbf24",
-        fillOpacity: 0.15,
-        weight: 2,
-      }).addTo(map);
-
-      setMapInstance(map);
-      setMapLoaded(true);
-    }
-
-    return () => {
-      if (mapInstance) {
-        mapInstance.remove();
-      }
-    };
-  }, [
-    mapCoordinates.lat,
-    mapCoordinates.lng,
-    mapCoordinates.address,
-    mapInstance,
-  ]);
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -95,8 +26,9 @@ const AboutSection = memo(function AboutSection() {
   };
 
   return (
-    <section id="about" className="py-20 bg-gray-200">
+    <section id="about" className="py-20 sm:py-8 bg-gray-200">
       <div className="max-w-6xl mx-auto px-4">
+        {/* Heading */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -106,7 +38,7 @@ const AboutSection = memo(function AboutSection() {
           className="text-center mb-12"
         >
           <h2 className="text-2xl md:text-3xl font-bold mb-2 cinzel">
-            About <span className="text-amber-400">Hazard kutz</span>
+            About <span className="text-amber-400">Hazard Kutz</span>
           </h2>
           <div className="w-20 h-1 bg-amber-400 mx-auto mb-2"></div>
           <p className="text-gray-800 max-w-2xl mx-auto leading-relaxed text-lg bellefair">
@@ -116,7 +48,9 @@ const AboutSection = memo(function AboutSection() {
           </p>
         </motion.div>
 
+        {/* Main grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          {/* Left: Story */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -139,7 +73,7 @@ const AboutSection = memo(function AboutSection() {
 
               <div className="space-y-4 text-gray-800 bellefair text-lg">
                 <p>
-                  Founded in May 2025, Hazard kutz began with a simple mission:
+                  Founded in May 2025, Hazard Kutz began with a simple mission:
                   to provide premium barber services in a comfortable, modern
                   environment.
                 </p>
@@ -151,6 +85,7 @@ const AboutSection = memo(function AboutSection() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+                {/* Working Hours */}
                 <div className="flex items-start">
                   <div className="p-2 bg-amber-100 rounded-full mr-3">
                     <FaClock
@@ -171,6 +106,7 @@ const AboutSection = memo(function AboutSection() {
                   </div>
                 </div>
 
+                {/* Contact */}
                 <div className="flex items-start">
                   <div className="p-2 bg-amber-100 rounded-full mr-3">
                     <FaPhone
@@ -179,7 +115,7 @@ const AboutSection = memo(function AboutSection() {
                     />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1 text-amber-500 backdrop bellefair text-lg">
+                    <h4 className="font-semibold mb-1 text-amber-500 bellefair text-lg">
                       Contact Us
                     </h4>
                     <div>
@@ -206,6 +142,7 @@ const AboutSection = memo(function AboutSection() {
             </div>
           </motion.div>
 
+          {/* Right: Map Section */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -217,7 +154,7 @@ const AboutSection = memo(function AboutSection() {
               <div className="flex items-center mb-6">
                 <div className="p-3 bg-amber-500 rounded-full mr-4">
                   <FaMapMarkerAlt
-                    className="text-white text-xl "
+                    className="text-white text-xl"
                     aria-label="Location Icon"
                   />
                 </div>
@@ -226,23 +163,21 @@ const AboutSection = memo(function AboutSection() {
                 </h3>
               </div>
 
-              <div className="h-64 sm:h-72 md:h-80 min-h-[300px] mb-6 rounded-lg overflow-hidden relative">
-                {!mapLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-                    <span className="text-gray-500 text-lg bellefair">
-                      Loading map...
-                    </span>
-                  </div>
-                )}
-                <div
-                  ref={mapContainerRef}
-                  className="w-full h-full border-0 rounded-lg"
-                  role="region"
-                  aria-label="Google Map showing shop location"
-                  style={{ zIndex: 1 }}
-                ></div>
+              {/* Google Maps Embed - Public */}
+              <div className="h-64 sm:h-72 md:h-80 mb-6 rounded-lg overflow-hidden relative">
+                <iframe
+                  title="Hazard Kutz Barbershop Location"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3971.030042191961!2d-0.2396442!3d5.6657754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9f73aae370df%3A0x352abe4b62b40a71!2sHAZARD%20KUTZ%20BARBERSHOP!5e0!3m2!1sen!2sgh!4v1709371770000!5m2!1sen!2sgh"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
               </div>
 
+              {/* Address + Directions */}
               <div className="flex items-start">
                 <div className="p-2 bg-amber-100 rounded-full mr-3 mt-1">
                   <FaMapMarkerAlt
@@ -262,7 +197,7 @@ const AboutSection = memo(function AboutSection() {
                   </p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${mapCoordinates.lat},${mapCoordinates.lng}`}
+                      href="https://www.google.com/maps/place/HAZARD+KUTZ+BARBERSHOP-+Opening+Soon%F0%9F%93%8C/@5.665511,-0.239281,18z/data=!4m6!3m5!1s0xfdf9f73aae370df:0x352abe4b62b40a71!8m2!3d5.6657754!4d-0.2396442!16s%2Fg%2F11x6ypvt9x?hl=en&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block text-sm bg-amber-500 text-white px-4 py-2 bellefair rounded-lg hover:bg-amber-600 transition-colors"
