@@ -153,7 +153,7 @@ const Footer = () => {
             </h3>
             <ul className="space-y-3 font-[Bellefair] text-sm sm:text-base">
               <li className="flex flex-col sm:flex-row sm:justify-between w-full">
-                <span className="text-gray-300 font-medium">Tue-Sat:</span>
+                <span className="text-gray-300 font-medium">Mon-Sat:</span>
                 <span className="text-gray-400 ml-1">9:00AM - 8:30PM</span>
               </li>
               <li className="flex flex-col sm:flex-row sm:justify-between w-full">
@@ -181,14 +181,17 @@ const Footer = () => {
             <ul className="space-y-4 font-[Bellefair] text-sm sm:text-base w-full">
               <li className="flex items-start gap-3 w-full">
                 <FaMapMarkerAlt className="text-amber-400 mt-1" />
-                <div className="flex flex-col w-full">
+                <a
+                  href="https://www.google.com/maps/place/HAZARD+KUTZ+BARBERSHOP-+Opening+Soon%F0%9F%93%8C/@5.665511,-0.239281,18z/data=!4m6!3m5!1s0xfdf9f73aae370df:0x352abe4b62b40a71!8m2!3d5.6657754!4d-0.2396442!16s%2Fg%2F11x6ypvt9x?hl=en&entry=ttu&g_ep=EgoyMDI1MTEwNS4wIKXMDSoASAFQAw%3D%3D"
+                  className="flex flex-col w-full"
+                >
                   <span className="text-gray-400 text-xs sm:text-sm leading-tight w-full block">
                     ST JOHNS-DOME-KWABENYA
                   </span>
                   <span className="text-gray-400 text-xs sm:text-sm leading-tight w-full block">
                     GREATER ACCRA
                   </span>
-                </div>
+                </a>
               </li>
               <li className="flex items-center gap-3 w-full">
                 <FaPhone className="text-amber-400" />
