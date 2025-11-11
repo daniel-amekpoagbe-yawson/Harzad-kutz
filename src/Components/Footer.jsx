@@ -160,11 +160,6 @@ const Footer = () => {
                 <span className="text-gray-300 font-medium">Sunday:</span>
                 <span className="text-gray-400">2:30PM - 9:00PM</span>
               </li>
-
-              <li className="flex flex-col sm:flex-row sm:justify-between w-full">
-                <span className="text-gray-300 font-medium">Monday:</span>
-                <span className="text-gray-400">Day off</span>
-              </li>
             </ul>
           </motion.div>
 
