@@ -852,11 +852,11 @@ export const CustomerBookingPage = () => {
           <div className="mt-4 flex flex-wrap gap-4 text-sm bellefair">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-amber-400" />
-              <span>+233 24 123 4567</span>
+              <span>0559891727</span>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-amber-400" />
-              <span>book@hazardkutz.com</span>
+              <span>booking@hazardkutzbarbershop.com</span>
             </div>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-amber-400" />
