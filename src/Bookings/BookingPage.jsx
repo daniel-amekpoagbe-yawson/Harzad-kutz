@@ -23,7 +23,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-hot-toast";
 import { confirmToast } from "../Components/Confirmtoast";
-import { sendBookingEmails } from "../services/sendEmail";
+import { sendBookingEmail } from "../services/sendEmail";
 
 // ============= AUTH CONTEXT =============
 const AuthContext = createContext(null);
@@ -780,7 +780,7 @@ export const CustomerBookingPage = () => {
 
       // ✅ NEW: Send confirmation email with React Email
       try {
-        await sendBookingEmails({
+        await sendBookingEmail({
           customerName: customerInfo.name,
           customerEmail: customerInfo.email,
           barberName: selectedBarber.name,
@@ -796,8 +796,6 @@ export const CustomerBookingPage = () => {
           paymentReference: paymentReference,
           paymentStatus: paymentMethod === "online" ? "Paid" : "Pay at venue",
         });
-
-        console.log("Email sent successfully");
       } catch (emailError) {
         console.error("Failed to send email:", emailError);
         // Don't fail the booking if email fails

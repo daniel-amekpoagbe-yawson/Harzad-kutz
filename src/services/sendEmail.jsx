@@ -1,39 +1,40 @@
-import { render } from "@react-email/render";
-import BookingConfirmation from "../emails/BookingConfirmation";
+import createBookingEmailHTML from "../emails/BookingConfirmation";
 
-export const sendBookingEmails = async (emailData) => {
+export const sendBookingEmail = async (emailData) => {
   try {
-    // Render the email template to HTML
-    const emailHtml = render(
-      BookingConfirmation({
-        customerName: emailData.customerName,
-        barberName: emailData.barberName,
-        serviceName: emailData.serviceName,
-        appointmentDate: emailData.appointmentDate,
-        appointmentTime: emailData.appointmentTime,
-        paymentMethod: emailData.paymentMethod,
-        paymentReference: emailData.paymentReference,
-        paymentStatus: emailData.paymentStatus,
-      })
-    );
+    // Generate professional HTML email
+    const emailHtml = createBookingEmailHTML(emailData);
 
-    // Send email via Resend API
-    const response = await fetch("https://api.resend.com/emails", {
+    // Send email via Brevo API
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.RESEND_API_KEY}`,
+        "api-key": import.meta.env.VITE_BREVO_API_KEY,
       },
       body: JSON.stringify({
-        from: "HazardKutz <onboarding@resend.dev>",
-        to: [emailData.customerEmail],
+        sender: {
+          name: "HazardKutz Barbershop",
+          email: "booking@hazardkutzbarbershop.com",
+        },
+        to: [
+          {
+            email: emailData.customerEmail,
+            name: emailData.customerName,
+          },
+        ],
         subject: "✂️ Your HazardKutz Appointment is Confirmed!",
-        html: emailHtml,
+        htmlContent: emailHtml,
       }),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to send email");
+      const errorData = await response.json();
+      console.error("Brevo API error:", errorData);
+      throw new Error(
+        `Failed to send email: ${errorData.message || "Unknown error"}`
+      );
     }
 
     const data = await response.json();
