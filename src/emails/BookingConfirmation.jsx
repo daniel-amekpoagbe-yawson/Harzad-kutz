@@ -207,7 +207,7 @@ export const createBookingEmailHTML = (emailData) => {
                                         <h3 style="margin: 0 0 12px; color: #1f2937; font-size: 16px; font-weight: 700;">
                                             Shop Location
                                         </h3>
-                                        <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                        < style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
                                         St Johns Dome kwabenya <br>
                                         Accra, Ghana <br>
                                         </p>
@@ -237,7 +237,7 @@ export const createBookingEmailHTML = (emailData) => {
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
                                 <tr>
                                     <td style="background-color: #0e7490; border-radius: 6px;">
-                                        <a href="tel:+233241234567" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600;">
+                                        <a href="tel:+233559891727" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600;">
                                             Contact Us
                                         </a>
                                     </td>
